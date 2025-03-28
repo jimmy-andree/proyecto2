@@ -114,7 +114,7 @@
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="index.php?pagina=factura">Realizar Factura</a>
-                        
+                        <a class="dropdown-item" href="index.php?pagina=RealizarVenta.html">Realizar Venta</a>
                     </div>
                 </li>
 
@@ -145,10 +145,15 @@
         <?php
         if (isset($_GET["pagina"])) {
             $pagina = $_GET["pagina"];
-            $valid_pages = ["registro", "ingreso", "ActualizarCliente", "MostrarCliente", "cliente", "proveedor", "MostrarProveedor", "ActualizarProveedor", "producto", "ActualizarProducto", "MostrarProducto", "salir", "registro", "factura"];
+            $valid_pages = ["registro", "ingreso", "ActualizarCliente", "MostrarCliente", "cliente", "proveedor", "MostrarProveedor", "ActualizarProveedor", "producto", "ActualizarProducto", "MostrarProducto", "salir", "registro", "factura", "ConsultarCliente", "RealizarVenta.html"];
             
             if (in_array($pagina, $valid_pages)) {
-                include "paginas/" . $pagina . ".php";
+                if(strpos($pagina, ".html") !== false){
+                    include "paginas/" . $pagina;
+                }
+                else{
+                    include "paginas/" . $pagina . ".php";
+                }
             } else {
                 include "paginas/error404.php";
             }

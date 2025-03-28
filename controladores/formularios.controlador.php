@@ -12,6 +12,17 @@ class ControladorFormularios{
 	} */
 
 
+	
+
+	static public function ctrConsultarCliente($item, $valor)
+	{
+		$tabla = "cliente";
+
+		$respuesta = ModeloFormularios::mdlConsultarCliente($tabla, $item, $valor);
+
+		return $respuesta;
+	}
+
 	/*este nos dice que el controlador cliente funcionara si y solo si RegistroNombre lleva un dato, la tabla cliente va  a dejar empezar a registrar los demas datos en los nombres : nombre, apellido, direccion etc. luego si son correctos los enviara a nuestro modeloformularios a la casilla de modelo cliente, si modelo cliente tiene todo bien, nos regresa la respuesta con un OK, el cual se ira a Cliente para que la casilla de cliente registrado se active */
 
 	// Registro User------------------------------------------------------------------------------------

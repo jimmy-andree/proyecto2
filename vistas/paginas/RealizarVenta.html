@@ -1,0 +1,158 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Factura</title>
+
+    <style>
+        .card-header {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card text-center">
+        <div class="card-header">
+            Buscar Producto
+        </div>
+        <div class="card-body">
+            <form id="form_producto">
+
+                <div class="form-group">
+                    <label for="txtDescProducto">Producto</label>
+                    <input type="text" class="form-control" id="txtDescProducto" aria-describedby="prdHelp">
+                    <small id="prdHelp" class="form-text text-muted">Ingresa el nombre del producto</small>
+                </div>
+
+
+                <button type="submit" class="btn btn-primary">Buscar</button>
+            </form>
+
+            <br />
+
+            <form>
+                <p>Producto: <span id="producto-nombre"></span></p>
+
+
+                <div class="form-row">
+                    <div class="form-group col-md-6 col-sm-6">
+                        <label for="txtCantProd">Cantidad</label>
+                        <input type="number" class="form-control" id="txtCantProd" aria-describedby="ctnPrdHelp">
+                        <small id="ctnPrdHelp" class="form-text text-muted">Ingresa la cantidad de productos</small>
+                    </div>
+
+                    <div class="form-group col-md-6 col-sm-6">
+                        <label for="txtDescProd">Descuento</label>
+                        <input type="number" class="form-control" id="txtDescProd" aria-describedby="descPrdHelp">
+                        <small id="descPrdHelp" class="form-text text-muted">Si el producto tiene descuento, ingrese el porcentaje</small>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Agregar</button>
+            </form>
+
+
+            <div id="resultadoP"></div>
+        </div>
+    </div>
+
+
+    <div class="card text-center">
+        <div class="card-header">
+            Buscar Cliente
+        </div>
+        <div class="card-body">
+            <form id="form_cliente">
+                <div class="form-group">
+                    <label for="txtDPI">DPI</label>
+                    <input type="number" class="form-control" id="txtDPI" aria-describedby="dpiHelp">
+                    <small id="dpiHelp" class="form-text text-muted">Ingresa tu DPI</small>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Buscar</button>
+            </form>
+
+            <div id="resultado"></div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="card text-center">
+        <div class="card-header">
+            Datos Cliente
+        </div>
+        <div class="card-body">
+            <!--<h2>Factura No. <span id="factura-id"><?= $nuevo_id ?></span></h2>-->
+
+            <p>Nombre: <span id="cliente-nombre"></span></p>
+            <p>Dirección: <span id="cliente-direccion"></span></p>
+        </div>
+    </div>
+
+
+    <br>
+
+    <div>
+
+        <button id="btn-print" type="button">print </button>
+
+    </div>
+
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $("#btn-print").on("click", function () {
+                var pdf = new jsPDF();
+
+                html2canvas(document.getElementById('dvd_factura'), {
+                    scale: 2,
+                    //width: document.getElementById('dvd_cliente').offsetWidth,
+                    //height: document.getElementById('dvd_cliente').offsetHeight,
+                    onrendered: function (canvas) {
+                        var imgData = canvas.toDataURL('image/png');
+
+                        pdf.addImage(imgData, 'PNG', 10, 10, 180, 0);
+                        pdf.save('prueba4.pdf');
+                    }
+                })
+            });
+
+            $("#form_cliente").submit(function (event) {
+                event.preventDefault(); // Evita que el formulario se envíe normalmente
+
+                var dpi = $("#txtDPI").val(); // Obtiene el ID ingresado
+
+                $.ajax({
+                    url: "vistas/paginas/ConsultarCliente.php", // Archivo PHP que procesa la consulta
+                    type: "POST", // Método de solicitud
+                    data: { DPI: dpi }, // Enviar el ID como parámetro en el cuerpo de la petición
+                    dataType: "json", // Esperar JSON como respuesta
+                    success: function (response) {
+                        if (response.error) {
+                            $("#resultado").html("<p style='color: red;'>" + response.error + "</p>");
+                        } else {
+                            //$("#resultado").html("<p>Cliente encontrado: " + JSON.stringify(response) + "</p>");
+                            localStorage.removeItem("IdCliente");
+
+                            $("#cliente-nombre").html(response.nombre + response.apellido);
+                            $("#cliente-direccion").html(response.direccion);
+                            localStorage.setItem("IdCliente", response.IDcliente);
+
+
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $("#resultado").html("<p style='color: red;'>Error en la solicitud: " + error + "</p>");
+                    }
+                });
+            });
+        });
+
+    </script>
+</body>
+</html>

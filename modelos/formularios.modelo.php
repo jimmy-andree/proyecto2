@@ -6,7 +6,18 @@ class ModeloFormularios
 {
 	/* Este modelo se crea para insertar los datos dentro de la base de datos, y tienen que ir los nombres de como aparecen en la tabla del controlador y de la base de datos  */
 
+	static public function mdlConsultarCliente($tabla, $item, $valor)
+	{
+		/* $stmt = Conexion::conectar()->prepare("SELECT * FROM $tabla"); */
+		$stmt = Conexion::conectar()->prepare("SELECT *, DATE_FORMAT(fecha,'%d/%m/%y') AS fecha FROM $tabla WHERE $item = :$item ORDER BY id DESC");
 
+		$stmt->bindParam(":".$item, $valor, PDO::PARAM_STR);
+
+		$stmt->execute();
+
+		return $stmt -> fetch();
+
+	}
 
 
 	// ------------------------------Registrar User----------------------------------------------------
