@@ -1,10 +1,9 @@
 ﻿<!DOCTYPE html>
-
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Factura</title>
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         .card-header {
             background-color: #007bff;
@@ -13,146 +12,104 @@
     </style>
 </head>
 <body>
-
-    <div class="card text-center">
-        <div class="card-header">
-            Buscar Producto
-        </div>
-        <div class="card-body">
-            <form id="form_producto">
-
-                <div class="form-group">
-                    <label for="txtDescProducto">Producto</label>
-                    <input type="text" class="form-control" id="txtDescProducto" aria-describedby="prdHelp">
-                    <small id="prdHelp" class="form-text text-muted">Ingresa el nombre del producto</small>
+    <div class="form-group">
+        <h4>Productos</h4>
+        <div class="producto-container">
+            <div class="row producto-item">
+                <div class="col-md-5">
+                    <select class="form-control producto-select" name="productos[]" required>
+                        <option value="">Seleccione un producto</option>
+                        <?php foreach ($productos as $producto): ?>
+                        <option value="<?php echo $producto[" IDproducto"]; ?>
+                            "
+                            data-precio="<?php echo $producto["PrecioVenta"]; ?>">
+                            <?php echo $producto["descripcion"] . " - Q" . $producto["PrecioVenta"]; ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
-
-
-                <button type="submit" class="btn btn-primary">Buscar</button>
-            </form>
-
-            <br />
-
-            <form>
-                <p>Producto: <span id="producto-nombre"></span></p>
-
-
-                <div class="form-row">
-                    <div class="form-group col-md-6 col-sm-6">
-                        <label for="txtCantProd">Cantidad</label>
-                        <input type="number" class="form-control" id="txtCantProd" aria-describedby="ctnPrdHelp">
-                        <small id="ctnPrdHelp" class="form-text text-muted">Ingresa la cantidad de productos</small>
-                    </div>
-
-                    <div class="form-group col-md-6 col-sm-6">
-                        <label for="txtDescProd">Descuento</label>
-                        <input type="number" class="form-control" id="txtDescProd" aria-describedby="descPrdHelp">
-                        <small id="descPrdHelp" class="form-text text-muted">Si el producto tiene descuento, ingrese el porcentaje</small>
-                    </div>
+                <div class="col-md-3">
+                    <input type="number" class="form-control cantidad" name="cantidades[]" placeholder="Cantidad" min="1" required>
                 </div>
-
-                <button type="submit" class="btn btn-primary">Agregar</button>
-            </form>
-
-
-            <div id="resultadoP"></div>
-        </div>
-    </div>
-
-
-    <div class="card text-center">
-        <div class="card-header">
-            Buscar Cliente
-        </div>
-        <div class="card-body">
-            <form id="form_cliente">
-                <div class="form-group">
-                    <label for="txtDPI">DPI</label>
-                    <input type="number" class="form-control" id="txtDPI" aria-describedby="dpiHelp">
-                    <small id="dpiHelp" class="form-text text-muted">Ingresa tu DPI</small>
+                <div class="col-md-3">
+                    <input type="text" class="form-control subtotal" name="subtotales[]" placeholder="Subtotal" readonly>
                 </div>
-
-                <button type="submit" class="btn btn-primary">Buscar</button>
-            </form>
-
-            <div id="resultado"></div>
+                <div class="col-md-1">
+                    <button type="button" class="btn btn-danger eliminar-producto">X</button>
+                </div>
+            </div>
         </div>
+        <button type="button" class="btn btn-success mt-2" id="agregar-producto">+ Agregar producto</button>
     </div>
 
-    <br />
-
-    <div class="card text-center">
-        <div class="card-header">
-            Datos Cliente
-        </div>
-        <div class="card-body">
-            <!--<h2>Factura No. <span id="factura-id"><?= $nuevo_id ?></span></h2>-->
-
-            <p>Nombre: <span id="cliente-nombre"></span></p>
-            <p>Dirección: <span id="cliente-direccion"></span></p>
-        </div>
+    <div class="form-group">
+        <label for="registroTotal">Total:</label>
+        <input type="text" class="form-control" id="registroTotal" name="registroTotal" readonly>
     </div>
 
+    <form id="form_cliente">
+        <div class="form-group">
+            <label for="txtDPI">DPI</label>
+            <input type="number" class="form-control" id="txtDPI" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Buscar Cliente</button>
+    </form>
 
-    <br>
+    <p>Nombre Cliente: <span id="cliente-nombre"></span></p>
+    <p>Dirección: <span id="cliente-direccion"></span></p>
+    <p>Producto Seleccionado: <span id="producto-nombre"></span></p>
 
-    <div>
-
-        <button id="btn-print" type="button">print </button>
-
-    </div>
-
-
-    <script type="text/javascript">
-
+    <script>
         $(document).ready(function () {
-            $("#btn-print").on("click", function () {
-                var pdf = new jsPDF();
-
-                html2canvas(document.getElementById('dvd_factura'), {
-                    scale: 2,
-                    //width: document.getElementById('dvd_cliente').offsetWidth,
-                    //height: document.getElementById('dvd_cliente').offsetHeight,
-                    onrendered: function (canvas) {
-                        var imgData = canvas.toDataURL('image/png');
-
-                        pdf.addImage(imgData, 'PNG', 10, 10, 180, 0);
-                        pdf.save('prueba4.pdf');
-                    }
-                })
-            });
-
             $("#form_cliente").submit(function (event) {
-                event.preventDefault(); // Evita que el formulario se envíe normalmente
+                event.preventDefault();
 
-                var dpi = $("#txtDPI").val(); // Obtiene el ID ingresado
+                var dpi = $("#txtDPI").val();
+                var producto = $(".producto-select").val();
 
+                if (!dpi || !producto) {
+                    alert("Debe ingresar el DPI y seleccionar un producto.");
+                    return;
+                }
+
+                // AJAX para buscar cliente
                 $.ajax({
-                    url: "vistas/paginas/ConsultarCliente.php", // Archivo PHP que procesa la consulta
-                    type: "POST", // Método de solicitud
-                    data: { DPI: dpi }, // Enviar el ID como parámetro en el cuerpo de la petición
-                    dataType: "json", // Esperar JSON como respuesta
+                    url: "vistas/paginas/ConsultarCliente.php",
+                    type: "POST",
+                    data: { DPI: dpi },
+                    dataType: "json",
                     success: function (response) {
                         if (response.error) {
-                            $("#resultado").html("<p style='color: red;'>" + response.error + "</p>");
+                            alert(response.error);
                         } else {
-                            //$("#resultado").html("<p>Cliente encontrado: " + JSON.stringify(response) + "</p>");
-                            localStorage.removeItem("IdCliente");
-
-                            $("#cliente-nombre").html(response.nombre + response.apellido);
-                            $("#cliente-direccion").html(response.direccion);
-                            localStorage.setItem("IdCliente", response.IDcliente);
-
-
+                            $("#cliente-nombre").text(response.nombre + " " + response.apellido);
+                            $("#cliente-direccion").text(response.direccion);
                         }
                     },
-                    error: function (xhr, status, error) {
-                        $("#resultado").html("<p style='color: red;'>Error en la solicitud: " + error + "</p>");
+                    error: function () {
+                        alert("Error al consultar cliente.");
+                    }
+                });
+
+                // AJAX para buscar producto
+                $.ajax({
+                    url: "vistas/paginas/ConsultarProducto.php",
+                    type: "POST",
+                    data: { IDproducto: producto },
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.error) {
+                            alert(response.error);
+                        } else {
+                            $("#producto-nombre").text(response.descripcion);
+                        }
+                    },
+                    error: function () {
+                        alert("Error al consultar producto.");
                     }
                 });
             });
         });
-
     </script>
 </body>
 </html>

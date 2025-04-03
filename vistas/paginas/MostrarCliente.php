@@ -122,7 +122,7 @@ echo '</pre>';*/
 
 			html2canvas(document.getElementById('dvd_factura'), {
 			  scale: 2, 
-			  //width: document.getElementById('dvd_cliente').offsetWidth,  
+			 //width: document.getElementById('dvd_cliente').offsetWidth,  
 			  //height: document.getElementById('dvd_cliente').offsetHeight, 
 			  onrendered: function(canvas) {
 			    var imgData = canvas.toDataURL('image/png');
